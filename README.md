@@ -1,0 +1,19 @@
+# Jurassic Portal Experience
+## Development guide
+### When our dimension breaks and lets us to access the **Jurassic World**
+This demo project was developed using **Webpack**, but it can be developed by any other module bundler or framework. We created a new project in Webpack and use the default structure. In this project, we only need the *index.html* file, the *index.js* file and a *styles.css* file (added by us). In addition, we used the **Onirix Web AR SDK** to create the Augmented Reality experience.
+1. First, we add the basic HTML tags to the *index.html*, and includ on the head tag the Onirix Web SDK (`<script src="https://sdk.onirix.com/0.1.0/ox-sdk.js"></script>`). In our case, we also add two *div* elements, in order to use them as a **loading bar**, by combination with a Shader Material.
+1. We create an **Onirix project** with an image scene. At this scene, we publish our 3 **marker images** and transform the project into public.
+1. At the *index.js*, we create a JS object including the attributes *token* (our Onirix project's web token) and *mode* (in this case, *OnirixSDK.TrackingMode.Image*).
+1. We call the *init* function to launch the SDK, with the configuration object as a parameter. This function returns a promise, whose callback receives the automatically instantiated Canvas as a parameter. When resolved, we can **set up the complete 3D scene**: a renderer, a camera (using `OX.getCameraParameters()` to get the parameters), lights... You should also subscribe the **SDK events** (`OnirixSDK.Events.OnDetected`, `OnirixSDK.Events.OnLost`, `OnirixSDK.Events.OnPose` and `OnirixSDK.Events.OnResize`), in order to get a full functionality of the app. The following actions are strongly recommended for these events:
+    * *OnDetected*: load/create all components/events you want to render (meshes, 3D models, click events...) and add them to the scene.
+    * *OnPose*: update the 3D camera in function of the new pose.
+    * *OnLost*: remove all the elements from the scene.
+    * *OnResize*: update camera params, adapting them to the new size.
+1. We look for the 3D models we want on **[Sketchfab](https://sketchfab.com/feed)**. In this case, we choose a **Tyrannosaurus Rex**, a **Triceratops** and a **Mamen River Dragon**.
+1. We create a huge plane and apply to it a grass texture, then we put it on the scene simulating a **meadow**.
+1. We create another plane and apply to it a **background** image (sky, mountains, etc.) as a texture.
+1. We create 4 huge planes, with transparent material, in order to cover the hold scene, except a square. That simulates a door, because the user only can see the square not hidden by these **"wall" planes**.
+1. We add a shader material with circle geometry, adjusted to the visible square. This shader material is totally transparent, except on its borders, and use a **Perlin noise function** (with UV coordinates as a parameter) to generate randomness at the borders' color and at the borders' opactiy (using the GLSL step function to obtain either 1 or 0 depending on the circle's center distance). That allows to obtain an **interdimensional portal effect**, because the final result is a circle perimeter randomly changing its thickness and its color intensity.
+1. Because of the geometries used, the visible square's corners stand out from the circle, so we need to use a torus geometry with transparent material in order to cover the circular door and **hide those corners**.
+1. Finally, the corresponding 3D model should be added to the scene. With the aim of not to extend the user's waiting, we strongly recommend loading (via GLTF loader) all the models at the beginning of the script and **coordinate that with the loading screen**, so that this screen panel will disappear when the models are fully loaded.
